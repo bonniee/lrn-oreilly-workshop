@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import { StyleSheet, Text, View, TextInput } from "react-native";
 import OpenWeatherMap from "./open_weather_map";
-import Forecast from "./Forecast";
+import Forecast from "./forecast";
 
 class WeatherProject extends Component {
   constructor(props) {
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#666666"
+    backgroundColor: "#F5FCFF"
   },
   welcome: { fontSize: 20, textAlign: "center", margin: 10 },
   input: {

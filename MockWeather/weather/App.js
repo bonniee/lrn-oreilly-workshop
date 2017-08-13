@@ -1,2 +1,2 @@
-import Weather from "./checkpoint_02/weather.js";
+import Weather from "./checkpoint_04/weather.js";
 export default Weather;
