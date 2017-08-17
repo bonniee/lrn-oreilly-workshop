@@ -1,2 +1,4 @@
 import Weather from "./weather/checkpoint_04/weather.js";
-export default Weather;
+import Mondrian from "./mondrian/checkpoint_01"
+
+export default Mondrian;
