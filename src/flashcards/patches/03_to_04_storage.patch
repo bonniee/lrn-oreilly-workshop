@@ -1,0 +1,164 @@
+diff --git a/src_checkpoint_04/.DS_Store b/src_checkpoint_04/.DS_Store
+new file mode 100644
+index 0000000..cf17762
+Binary files /dev/null and b/src_checkpoint_04/.DS_Store differ
+diff --git a/src_checkpoint_03/actions/creators.js b/src_checkpoint_04/actions/creators.js
+index e26a167..635c227 100644
+--- a/src_checkpoint_03/actions/creators.js
++++ b/src_checkpoint_04/actions/creators.js
+@@ -3,7 +3,8 @@ import {
+   ADD_CARD,
+   REVIEW_DECK,
+   STOP_REVIEW,
+-  NEXT_REVIEW
++  NEXT_REVIEW,
++  LOAD_DATA
+ } from "./types";
+ 
+ import Card from "../data/Card";
+@@ -28,3 +29,7 @@ export const stopReview = () => {
+ export const nextReview = () => {
+   return { type: NEXT_REVIEW, data: {} };
+ };
++
++export const loadData = data => {
++  return { type: LOAD_DATA, data: data };
++};
+diff --git a/src_checkpoint_03/actions/types.js b/src_checkpoint_04/actions/types.js
+index 215d05b..6e41b62 100644
+--- a/src_checkpoint_03/actions/types.js
++++ b/src_checkpoint_04/actions/types.js
+@@ -3,3 +3,4 @@ export const ADD_CARD = "ADD_CARD";
+ export const REVIEW_DECK = "REVIEW_DECK";
+ export const STOP_REVIEW = "STOP_REVIEW";
+ export const NEXT_REVIEW = "NEXT_REVIEW";
++export const LOAD_DATA = "LOAD_DATA";
+diff --git a/src_checkpoint_03/components/Flashcards.js b/src_checkpoint_04/components/Flashcards.js
+index 4a87233..d1d1056 100644
+--- a/src_checkpoint_03/components/Flashcards.js
++++ b/src_checkpoint_04/components/Flashcards.js
+@@ -5,6 +5,8 @@ import { createStore } from "redux";
+ import { Provider } from "react-redux";
+ 
+ import { reducer } from "../reducers/index";
++import { readDecks } from "../storage/decks";
++import { loadData } from "../actions/creators";
+ 
+ import Logo from "./Header/Logo";
+ import DeckScreen from "./DeckScreen";
+@@ -18,6 +20,11 @@ let headerOptions = {
+   headerLeft: <Logo />
+ };
+ 
++// On application start, read saved state from disk.
++readDecks().then(decks => {
++  store.dispatch(loadData(decks));
++});
++
+ const Navigator = StackNavigator({
+   Home: { screen: DeckScreen, navigationOptions: headerOptions },
+   Review: { screen: ReviewScreen, navigationOptions: headerOptions },
+diff --git a/src_checkpoint_03/reducers/decks.js b/src_checkpoint_04/reducers/decks.js
+index 1202a28..9eb40fe 100644
+--- a/src_checkpoint_03/reducers/decks.js
++++ b/src_checkpoint_04/reducers/decks.js
+@@ -1,7 +1,9 @@
+-import { ADD_DECK, ADD_CARD } from "../actions/types";
++import { ADD_DECK, ADD_CARD, LOAD_DATA } from "../actions/types";
++import Deck from "./../data/Deck";
++import { writeDecks } from "./../storage/decks";
+ 
+ function decksWithNewCard(oldDecks, card) {
+-  return oldDecks.map(deck => {
++  let newState = oldDecks.map(deck => {
+     if (deck.id === card.deckID) {
+       deck.addCard(card);
+       return deck;
+@@ -9,16 +11,26 @@ function decksWithNewCard(oldDecks, card) {
+       return deck;
+     }
+   });
++  saveDecks(newState);
++  return newState;
+ }
+ 
+-const reducer = (state = [], action) => {
+-  console.warn("Changes are not persisted to disk");
++function saveDecks(state) {
++  writeDecks(state);
++  return state;
++}
+ 
++const reducer = (state = [], action) => {
+   switch (action.type) {
++    case LOAD_DATA:
++      return action.data;
+     case ADD_DECK:
+-      return state.concat(action.data);
++      let newState = state.concat(action.data);
++      saveDecks(newState);
++      return newState;
+     case ADD_CARD:
+       return decksWithNewCard(state, action.data);
++
+   }
+   return state;
+ };
+diff --git a/src_checkpoint_03/reducers/reviews.js b/src_checkpoint_04/reducers/reviews.js
+index 93aae7e..30f234c 100644
+--- a/src_checkpoint_03/reducers/reviews.js
++++ b/src_checkpoint_04/reducers/reviews.js
+@@ -27,7 +27,7 @@ function nextReview(state) {
+   );
+ }
+ 
+-const reducer = (state = mkReviewstate(), action, decks) => {
++const reducer = (state = mkReviewState(), action, decks) => {
+   switch (action.type) {
+     case REVIEW_DECK:
+       return generateReviews(findDeck(decks, action.data.deckID));
+diff --git a/src_checkpoint_04/storage/decks.js b/src_checkpoint_04/storage/decks.js
+new file mode 100644
+index 0000000..6f9cf55
+--- /dev/null
++++ b/src_checkpoint_04/storage/decks.js
+@@ -0,0 +1,39 @@
++import { AsyncStorage } from "react-native";
++import Deck from "./../data/Deck";
++export const DECK_KEY = "flashcards:decks";
++import { MockDecks } from "./../data/Mocks";
++
++async function read(key, deserializer) {
++  try {
++    let val = await AsyncStorage.getItem(key);
++    if (val !== null) {
++      let readValue = JSON.parse(val).map(serialized => {
++        return deserializer(serialized);
++      });
++      return readValue;
++    } else {
++      console.info(`${key} not found on disk.`);
++    }
++  } catch (error) {
++    console.warn("AsyncStorage error: ", error.message);
++  }
++}
++
++async function write(key, item) {
++  try {
++    await AsyncStorage.setItem(key, JSON.stringify(item));
++  } catch (error) {
++    console.error("AsyncStorage error: ", error.message);
++  }
++}
++
++export const readDecks = () => {
++  return read(DECK_KEY, Deck.fromObject);
++};
++
++export const writeDecks = decks => {
++  return write(DECK_KEY, decks);
++};
++
++// For debug/test purposes.
++const replaceData = writeDecks(MockDecks);
