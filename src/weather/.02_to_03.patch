@@ -1,0 +1,79 @@
+diff --git a/checkpoint_02/forecast.js b/checkpoint_03/forecast.js
+index a90fe79..9025384 100644
+--- a/checkpoint_02/forecast.js
++++ b/checkpoint_03/forecast.js
+@@ -27,9 +27,9 @@ const styles = StyleSheet.create({
+     fontSize: 20,
+     textAlign: "center",
+     margin: 10,
+-    color: "#000"
++    color: "#FFF"
+   },
+-  mainText: { flex: 1, fontSize: 16, textAlign: "center", color: "#000" }
++  mainText: { flex: 1, fontSize: 16, textAlign: "center", color: "#FFF" }
+ });
+ 
+ export default Forecast;
+diff --git a/checkpoint_03/open_weather_map.js b/checkpoint_03/open_weather_map.js
+new file mode 100644
+index 0000000..1774abc
+--- /dev/null
++++ b/checkpoint_03/open_weather_map.js
+@@ -0,0 +1,23 @@
++const WEATHER_API_KEY = "bbeb34ebf60ad50f7893e7440a1e2b0b";
++const API_STEM = "http://api.openweathermap.org/data/2.5/weather?";
++
++function zipUrl(zip) {
++  return `${API_STEM}q=${zip}&units=imperial&APPID=${WEATHER_API_KEY}`;
++}
++
++function fetchForecast(zip) {
++  return fetch(zipUrl(zip))
++    .then(response => response.json())
++    .then(responseJSON => {
++      return {
++        main: responseJSON.weather[0].main,
++        description: responseJSON.weather[0].description,
++        temp: responseJSON.main.temp
++      };
++    })
++    .catch(error => {
++      console.error(error);
++    });
++}
++
++export default { fetchForecast: fetchForecast };
+diff --git a/checkpoint_02/weather.js b/checkpoint_03/weather.js
+index 5f21617..aa5cd35 100644
+--- a/checkpoint_02/weather.js
++++ b/checkpoint_03/weather.js
+@@ -1,23 +1,20 @@
+ import React, { Component } from "react";
+ 
+ import { StyleSheet, Text, View, TextInput } from "react-native";
++import OpenWeatherMap from "./open_weather_map";
+ import Forecast from "./forecast";
+ 
+ class WeatherProject extends Component {
+   constructor(props) {
+     super(props);
+-    this.state = {
+-      zip: "",
+-      forecast: {
+-        main: "Cloudy",
+-        description: "Showers in the afternoon",
+-        temp: "60"
+-      }
+-    };
++    this.state = { zip: "", forecast: null };
+   }
+ 
+   _handleTextChange = event => {
+-    this.setState({ zip: event.nativeEvent.text });
++    let zip = event.nativeEvent.text;
++    OpenWeatherMap.fetchForecast(zip).then(forecast => {
++      this.setState({ forecast: forecast });
++    });
+   };
+ 
+   render() {

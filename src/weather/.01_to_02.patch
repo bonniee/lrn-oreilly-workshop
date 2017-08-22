@@ -1,0 +1,90 @@
+diff --git a/checkpoint_02/forecast.js b/checkpoint_02/forecast.js
+new file mode 100644
+index 0000000..a90fe79
+--- /dev/null
++++ b/checkpoint_02/forecast.js
+@@ -0,0 +1,35 @@
++import React, { Component } from "react";
++
++import { StyleSheet, Text, View } from "react-native";
++
++class Forecast extends Component {
++  render() {
++    return (
++      <View style={styles.container}>
++        <Text style={styles.bigText}>
++          {this.props.main}
++        </Text>
++        <Text style={styles.mainText}>
++          Current conditions: {this.props.description}
++        </Text>
++        <Text style={styles.bigText}>
++          {this.props.temp}°F
++        </Text>
++      </View>
++    );
++  }
++}
++
++const styles = StyleSheet.create({
++  container: { height: 130 },
++  bigText: {
++    flex: 2,
++    fontSize: 20,
++    textAlign: "center",
++    margin: 10,
++    color: "#000"
++  },
++  mainText: { flex: 1, fontSize: 16, textAlign: "center", color: "#000" }
++});
++
++export default Forecast;
+diff --git a/checkpoint_01/weather.js b/checkpoint_02/weather.js
+index 23dc6f9..5f21617 100644
+--- a/checkpoint_01/weather.js
++++ b/checkpoint_02/weather.js
+@@ -1,11 +1,19 @@
+ import React, { Component } from "react";
+ 
+ import { StyleSheet, Text, View, TextInput } from "react-native";
++import Forecast from "./forecast";
+ 
+ class WeatherProject extends Component {
+   constructor(props) {
+     super(props);
+-    this.state = { zip: "" };
++    this.state = {
++      zip: "",
++      forecast: {
++        main: "Cloudy",
++        description: "Showers in the afternoon",
++        temp: "60"
++      }
++    };
+   }
+ 
+   _handleTextChange = event => {
+@@ -13,11 +21,23 @@ class WeatherProject extends Component {
+   };
+ 
+   render() {
++    let content = null;
++    if (this.state.forecast !== null) {
++      content = (
++        <Forecast
++          main={this.state.forecast.main}
++          description={this.state.forecast.description}
++          temp={this.state.forecast.temp}
++        />
++      );
++    }
++
+     return (
+       <View style={styles.container}>
+         <Text style={styles.welcome}>
+           You input {this.state.zip}.
+         </Text>
++        {content}
+         <TextInput
+           style={styles.input}
+           onSubmitEditing={this._handleTextChange}
