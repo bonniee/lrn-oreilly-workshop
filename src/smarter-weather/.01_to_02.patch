@@ -1,0 +1,36 @@
+diff --git a/checkpoint_01/open_weather_map.js b/checkpoint_02/open_weather_map.js
+index 1774abc..5c34b91 100644
+--- a/checkpoint_01/open_weather_map.js
++++ b/checkpoint_02/open_weather_map.js
+@@ -5,8 +5,12 @@ function zipUrl(zip) {
+   return `${API_STEM}q=${zip}&units=imperial&APPID=${WEATHER_API_KEY}`;
+ }
+ 
+-function fetchForecast(zip) {
+-  return fetch(zipUrl(zip))
++function latLonUrl(lat, lon) {
++  return `${API_STEM}lat=${lat}&lon=${lon}&units=imperial&APPID=${WEATHER_API_KEY}`;
++}
++
++function fetchForecast(url) {
++  return fetch(url)
+     .then(response => response.json())
+     .then(responseJSON => {
+       return {
+@@ -20,4 +24,15 @@ function fetchForecast(zip) {
+     });
+ }
+ 
+-export default { fetchForecast: fetchForecast };
++function fetchZipForecast(zip) {
++  return fetchForecast(zipUrl(zip));
++}
++
++function fetchLatLonForecast(lat, lon) {
++  return fetchForecast(latLonUrl(lat, lon));
++}
++
++export default {
++  fetchZipForecast: fetchZipForecast,
++  fetchLatLonForecast: fetchLatLonForecast
++};

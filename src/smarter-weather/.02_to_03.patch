@@ -1,0 +1,35 @@
+diff --git a/checkpoint_02/weather.js b/checkpoint_03/weather.js
+index 4c956f2..9544af9 100644
+--- a/checkpoint_02/weather.js
++++ b/checkpoint_03/weather.js
+@@ -9,11 +9,29 @@ class WeatherProject extends Component {
+   constructor(props) {
+     super(props);
+     this.state = { zip: "", forecast: null };
++    this._fetchLocation();
+   }
+ 
++  _fetchLocation = () => {
++    navigator.geolocation.getCurrentPosition(
++      initialPosition => {
++        let lat = initialPosition.coords.latitude;
++        let long = initialPosition.coords.longitude;
++
++        OpenWeatherMap.fetchLatLonForecast(lat, long).then(forecast => {
++          this.setState({ forecast: forecast });
++        });
++      },
++      error => {
++        alert(error.message);
++      },
++      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
++    );
++  };
++
+   _handleTextChange = event => {
+     let zip = event.nativeEvent.text;
+-    OpenWeatherMap.fetchForecast(zip).then(forecast => {
++    OpenWeatherMap.fetchZipForecast(zip).then(forecast => {
+       this.setState({ forecast: forecast });
+     });
+   };
