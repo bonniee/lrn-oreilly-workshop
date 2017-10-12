@@ -4,7 +4,7 @@ This repo contains code samples for the Learning React Native O'Reilly Online Tr
 
 ## Slides
 
-[Slides for the workshop are here](https://docs.google.com/presentation/d/1QyVGyHlg5TY7q7y1SPrDJxVO0riTebTReK3nvBBU7bY/edit?usp=sharing).
+[Slides for the workshop are here](http://bit.ly/lrntraining).
 
 ## Installation instructions
 
