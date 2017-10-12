@@ -1,0 +1,49 @@
+diff --git a/checkpoint_00/weather.js b/checkpoint_01/weather.js
+index 3e51955..23dc6f9 100644
+--- a/checkpoint_00/weather.js
++++ b/checkpoint_01/weather.js
+@@ -1,14 +1,27 @@
+ import React, { Component } from "react";
+ 
+-import { StyleSheet, Text, View } from "react-native";
++import { StyleSheet, Text, View, TextInput } from "react-native";
+ 
+ class WeatherProject extends Component {
++  constructor(props) {
++    super(props);
++    this.state = { zip: "" };
++  }
++
++  _handleTextChange = event => {
++    this.setState({ zip: event.nativeEvent.text });
++  };
++
+   render() {
+     return (
+       <View style={styles.container}>
+         <Text style={styles.welcome}>
+-          Welcome to React Native!
++          You input {this.state.zip}.
+         </Text>
++        <TextInput
++          style={styles.input}
++          onSubmitEditing={this._handleTextChange}
++        />
+       </View>
+     );
+   }
+@@ -22,6 +35,14 @@ const styles = StyleSheet.create({
+     backgroundColor: "#F5FCFF"
+   },
+   welcome: { fontSize: 20, textAlign: "center", margin: 10 },
++  input: {
++    fontSize: 20,
++    borderWidth: 2,
++    padding: 2,
++    height: 40,
++    width: 100,
++    textAlign: "center"
++  }
+ });
+ 
+ export default WeatherProject;
